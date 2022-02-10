@@ -1,16 +1,7 @@
-/* Caso você precise relembrar o que fazer no código:
-    Pegar o endereço dado que o programa requisita
-    Encontrar ele na L1 (table entry) ou L2
-    Conferir se o valor encontrado está em algum lugar da cache
-    Se não estiver, atualiza
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
-    int w = 0; //debug puro *ignora ignora
-
-#define MEM_SIZE (1<<30)
+int w = 0; //debug puro *ignora ignora
 
 //page table entries
 unsigned int L1[4096];
@@ -30,11 +21,6 @@ unsigned int L2COARSE[256];
 
 #define SETSCACHE 256
 
-int manageCoarsePage(int real_adress, int l2_address){
-
-    int C;
-    C = 2;
-}
 
 int manageFileL2(int real_addr, int l1_base, int offset_l2){
 
@@ -77,14 +63,11 @@ int manageFileL2(int real_addr, int l1_base, int offset_l2){
                 }         
 
             }
-            //confereBits(real_address, L1[i]);
         }
     }
 
 
     int real_addr_l2 = (L2COARSE[i]  & 0xfff00000) | real_addr; //máscara para pegar o valor da base em L2, mas manter o offset do endereço original (complete_address)
-            //printf("################### o real address é 0x%08x\n valor na L1[i] é 0x%08x\n complete_address é 0x%08x\n", real_address, L1[i], complete_address);
-        //printf("0x%08x\n", bit); //imprimir os valores do arquivo
    
     return 0;
 }
@@ -96,12 +79,11 @@ int confereBits(int real_address, int address_l1){
         
         printf("O VALOR DE last_bits É: 0x%08x e adress_l1 É: 0x%08x\n", last_bits, address_l1);
 
-        int addr_base = ((address_l1 >> OFFS_SE));   //pega o endereço base do endereço de l1
+        int addr_base = ((address_l1 >> OFFS_SE));       //pega o endereço base do endereço de l1
         int offsetl1 = (address_l1 & 0x000fffff);        //pega o offset do endereço de l1
 
         if(last_bits == 0x10){
         printf("Section Entry\n");
-            //manageSectionEntry();
             //o endereço real encontrado já pode ser colocado na cache
             printf("O endereço físico resultou em: 0x%08x\n", address_l1);
 
@@ -132,7 +114,7 @@ int manageFileL1(int base_address, int offset, int complete_address){
         return -1;
     }
 
-    printf("o %dº BASE ADDRESS É: 0x%08x = ""%d""\n", w, base_address, base_address);
+    printf("\n o %dº BASE ADDRESS É: 0x%08x = ""%d""\n", w, base_address, base_address);
     w++; //debug
     int i = 0;
     int flag = 0;
@@ -146,13 +128,12 @@ int manageFileL1(int base_address, int offset, int complete_address){
         if(base_address == i){  //conferir linha da página de acordo com o endereço base
 
             flag = 1;
-            int real_address = (L1[i]  & 0xfff00000) | complete_address; //máscara para pegar o valor da base em L1, mas manter o offset do endereço original (complete_address)
-            printf("################### o real address é 0x%08x\n valor na L1[i] é 0x%08x\n complete_address é 0x%08x\n", real_address, L1[i], complete_address);
+            int real_address = (L1[i]  & 0xfff00000) | (complete_address & 0x000fffff); //máscara para pegar o valor da base em L1, mas manter o offset do endereço original (complete_address)
+            printf("################### \n o real address é 0x%08x\n e complete_address é 0x%08x\n", real_address, complete_address);
 
             confereBits(real_address, L1[i]);
-        }// ESSA LINHA ME CONFINDIU TODA APAGAelse printf("endereço não encontrado na tabela :( ");
+        }
 
-        //printf("0x%08x\n", bit); //imprimir os valores do arquivo
         i++;
     }
 
@@ -199,31 +180,20 @@ int manageFileAddress(void){
         //CASO L1 SECTION ENTRY
         manageFileL1(base_endereco, offsetl1, N_ADDR[q]);    //procurar a linha desse endereço na L1 através da base
 
-        //CASO L1 COARSEL2  -> MUDAR OFFS_SE para 10
-        //CASO L1 FINEL2    -> MUDAR OFFS_SE para 12
-        //CASO L1 FAULT     -> MUDAR OFFS_SE para 2(?)
-
         //manageAddressL1(N_ADDR[q++]);
-        printf(" A linha em endereço eh: >>>0x%08x<<<\n\n", N_ADDR[q]); //imprimir os valores do arquivo
+        //printf(" A linha em endereço eh: >>>0x%08x<<<\n\n", N_ADDR[q]); //imprimir os valores do arquivo
         i--;
         q++;
+
     }
-    printf("ENDEREÇO BASE FICOU: 0x%08x\n", base_endereco);
-    //MÁSCARA L1!!
 
     //int q = 0;
-    //printf("0x%08x\n", N_ADDR[q]); //imprimir a linha em questão
-    
-
+    //printf("0x%08x\n", N_ADDR[q]); //imprimir a linha do endereço do programa
     
     return 0;
 }
 
-int manageSectionEntry(void){
-}
-
 //set cache function
-
 int setCache(void){
     
     int cache_tag [SETSCACHE];
@@ -261,24 +231,15 @@ int setCache(void){
     }
 
     //falta fazer o caso em que d = 1;
-
-//set cache function
+    //set cache function
 
 }
 
 int main(){
 
-    setCache();
-    //printf("o memsize eh  0x%08x\n", MEM_SIZE);
+    //setCache();
     manageFileAddress();
-    //manageFileL1(); 
-    //manageFileL2();
-    manageSectionEntry();
-    //manageAddress();
     printf("batata");
-
- 
-
 
     return 0;
 }
